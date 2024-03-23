@@ -51,10 +51,38 @@ public class Pedido {
         return sumatoria;
     }
 
-    public double contarMontoTotal() {
+    private double descontar(double monto, double porcentaje) {
+        return monto * (100.0 - porcentaje) / 100;
+    }
+
+    public double contarMontoTotal(TarjetaViedma miTarjeta) {
         double sumatoriaTotal = 0;
         sumatoriaTotal += contarMonto(platosPrincipalesMap);
         sumatoriaTotal += contarMonto(bebidasMap);
+        return sumatoriaTotal;
+    }
+
+    public double contarMontoTotal(TarjetaVisa miTarjeta) {
+        double sumatoriaTotal = 0;
+        sumatoriaTotal += contarMonto(bebidasMap);
+        sumatoriaTotal = descontar(sumatoriaTotal, 3.0);//Descuento del 3% en bebidas
+        sumatoriaTotal += contarMonto(platosPrincipalesMap);
+        return sumatoriaTotal;
+    }
+
+    public double contarMontoTotal(TarjetaMastercard miTarjeta) {
+        double sumatoriaTotal = 0;
+        sumatoriaTotal += contarMonto(platosPrincipalesMap);
+        sumatoriaTotal = descontar(sumatoriaTotal, 2.0);//Descuento del 2% en platos principales
+        sumatoriaTotal += contarMonto(bebidasMap);
+        return sumatoriaTotal;
+    }
+
+    public double contarMontoTotal(TarjetaComarcaplus miTarjeta) {
+        double sumatoriaTotal = 0;
+        sumatoriaTotal += contarMonto(platosPrincipalesMap);
+        sumatoriaTotal += contarMonto(bebidasMap);
+        sumatoriaTotal = descontar(sumatoriaTotal, 2.0);//Descuento del 2% en el total
         return sumatoriaTotal;
     }
 

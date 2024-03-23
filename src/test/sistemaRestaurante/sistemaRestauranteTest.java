@@ -53,7 +53,6 @@ public class sistemaRestauranteTest {
 
         Pedido miPedido = new Pedido(1);
 
-
         assertEquals(720, miPedido.contarMonto(platosPrincipalesMap)); //contarMonto deberia ser private, pero como lo pruebo?
     }
 
@@ -64,8 +63,40 @@ public class sistemaRestauranteTest {
         miPedido.pedir(ravioles);
         miPedido.pedir(sprite);
         TarjetaViedma miTarjeta = new TarjetaViedma(33142, 1000);
-        miTarjeta.pagar(miPedido.contarMontoTotal());
+        miTarjeta.pagar(miPedido.contarMontoTotal(miTarjeta));
         assertEquals(470, miTarjeta.getSaldo());
     }
 
+    @Test
+    public void pagarConTarjetaVisa() {
+        Pedido miPedido = new Pedido(1);
+        miPedido.pedir(napolitana);
+        miPedido.pedir(ravioles);
+        miPedido.pedir(sprite);
+        TarjetaVisa miTarjeta = new TarjetaVisa(33142, 1000);
+        miTarjeta.pagar(miPedido.contarMontoTotal(miTarjeta));
+        assertEquals(471.79999999999995, miTarjeta.getSaldo());
+    }
+
+    @Test
+    public void pagarConTarjetaMastercard() {
+        Pedido miPedido = new Pedido(1);
+        miPedido.pedir(napolitana);
+        miPedido.pedir(ravioles);
+        miPedido.pedir(sprite);
+        TarjetaMastercard miTarjeta = new TarjetaMastercard(33142, 1000);
+        miTarjeta.pagar(miPedido.contarMontoTotal(miTarjeta));
+        assertEquals(479.4, miTarjeta.getSaldo());
+    }
+
+    @Test
+    public void pagarConTarjetaComarcaplus() {
+        Pedido miPedido = new Pedido(1);
+        miPedido.pedir(napolitana);
+        miPedido.pedir(ravioles);
+        miPedido.pedir(sprite);
+        TarjetaComarcaplus miTarjeta = new TarjetaComarcaplus(33142, 1000);
+        miTarjeta.pagar(miPedido.contarMontoTotal(miTarjeta));
+        assertEquals(480.6, miTarjeta.getSaldo());
+    }
 }
