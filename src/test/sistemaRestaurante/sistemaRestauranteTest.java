@@ -5,6 +5,7 @@ import org.testng.annotations.Test;
 import java.util.HashMap;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertThrows;
 
 public class sistemaRestauranteTest {
     //inicializar platos
@@ -63,8 +64,8 @@ public class sistemaRestauranteTest {
         miPedido.pedir(ravioles);
         miPedido.pedir(sprite);
         TarjetaViedma miTarjeta = new TarjetaViedma(33142, 1000);
-        miTarjeta.pagar(miPedido.contarMontoTotal(miTarjeta));
-        assertEquals(470, miTarjeta.getSaldo());
+        miTarjeta.pagar(miPedido.contarMontoTotal(miTarjeta, 3.0));   //ejemplo como porcentaje de 3%
+        assertEquals(454.1, miTarjeta.getSaldo());
     }
 
     @Test
@@ -74,8 +75,8 @@ public class sistemaRestauranteTest {
         miPedido.pedir(ravioles);
         miPedido.pedir(sprite);
         TarjetaVisa miTarjeta = new TarjetaVisa(33142, 1000);
-        miTarjeta.pagar(miPedido.contarMontoTotal(miTarjeta));
-        assertEquals(471.79999999999995, miTarjeta.getSaldo());
+        miTarjeta.pagar(miPedido.contarMontoTotal(miTarjeta, 5)); //ejemplo de propina con 5%
+        assertEquals(445.3899999999999, miTarjeta.getSaldo());
     }
 
     @Test
@@ -85,8 +86,8 @@ public class sistemaRestauranteTest {
         miPedido.pedir(ravioles);
         miPedido.pedir(sprite);
         TarjetaMastercard miTarjeta = new TarjetaMastercard(33142, 1000);
-        miTarjeta.pagar(miPedido.contarMontoTotal(miTarjeta));
-        assertEquals(479.4, miTarjeta.getSaldo());
+        miTarjeta.pagar(miPedido.contarMontoTotal(miTarjeta, 2)); //Porcentaje de ejemplo del 2%
+        assertEquals(468.98799999999994, miTarjeta.getSaldo());
     }
 
     @Test
@@ -96,7 +97,29 @@ public class sistemaRestauranteTest {
         miPedido.pedir(ravioles);
         miPedido.pedir(sprite);
         TarjetaComarcaplus miTarjeta = new TarjetaComarcaplus(33142, 1000);
-        miTarjeta.pagar(miPedido.contarMontoTotal(miTarjeta));
-        assertEquals(480.6, miTarjeta.getSaldo());
+        miTarjeta.pagar(miPedido.contarMontoTotal(miTarjeta, 2));    //Porcentaje de ejemplo del 2%
+        assertEquals(470.212, miTarjeta.getSaldo());
+    }
+
+    @Test
+    public void pedirComidaCuandoEstaConfirmado() {
+        Pedido miPedido = new Pedido(1);
+        miPedido.pedir(napolitana);
+        miPedido.confirmar();
+        assertThrows(IllegalStateException.class, () -> {
+            miPedido.pedir(napolitana);
+        });
+
+    }
+
+    @Test
+    public void pedirBebidaCuandoEstaConfirmado() {
+        Pedido miPedido = new Pedido(1);
+        miPedido.pedir(cocacola);
+        miPedido.confirmar();
+        assertThrows(IllegalStateException.class, () -> {
+            miPedido.pedir(cocacola);
+        });
+
     }
 }

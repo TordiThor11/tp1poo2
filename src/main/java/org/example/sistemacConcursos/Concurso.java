@@ -1,6 +1,5 @@
 package org.example.sistemacConcursos;
 
-import javax.swing.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -18,14 +17,14 @@ public class Concurso {
 
     }
 
-    public void agregarParticipante(Participante participante) {
+    public void agregarParticipante(Participante participante) throws Exception {
         if (esFechaValida()) {
             this.participantes.add(participante);
             if (esPrimerDia()) {
                 participante.sumarPuntosPorInscripcion();
             }
         } else {
-            JOptionPane.showMessageDialog(null, "La fecha no es valida");//tratar con throw
+            throw new Exception("La fecha no es valida");
         }
 
     }

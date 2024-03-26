@@ -7,28 +7,37 @@ public class Pedido {
     private HashMap<Consumible, Integer> platosPrincipalesMap = new HashMap<>();
     private HashMap<Consumible, Integer> bebidasMap = new HashMap<>();
     private int numeroMesa;
-    private int estado = 0; //0 es en proceso, 1 es confirmado y 2 es pagado
+    private int estado = 0; //0 es en proceso y 1 es confirmado
 
     public Pedido(int numeroMesa) {
         this.numeroMesa = numeroMesa;
     }
 
     public void pedir(PlatoPrincipal plato) {
-        if (platosPrincipalesMap.containsKey(plato)) {
-            int cantidadVieja = platosPrincipalesMap.get(plato);
-            this.platosPrincipalesMap.replace(plato, cantidadVieja + 1);
+        if (this.estado == 0) {
+            if (platosPrincipalesMap.containsKey(plato)) {
+                int cantidadVieja = platosPrincipalesMap.get(plato);
+                this.platosPrincipalesMap.replace(plato, cantidadVieja + 1);
+            } else {
+                this.platosPrincipalesMap.put(plato, 1);
+            }
         } else {
-            this.platosPrincipalesMap.put(plato, 1);
+            throw new IllegalStateException("No se puede agregar nada una vez confirmado el pedido");
         }
     }
 
     public void pedir(Bebida bebida) {
-        if (bebidasMap.containsKey(bebida)) {
-            int cantidadVieja = bebidasMap.get(bebida);
-            this.bebidasMap.replace(bebida, cantidadVieja + 1);
+        if (this.estado == 0) {
+            if (bebidasMap.containsKey(bebida)) {
+                int cantidadVieja = bebidasMap.get(bebida);
+                this.bebidasMap.replace(bebida, cantidadVieja + 1);
+            } else {
+                this.bebidasMap.put(bebida, 1);
+            }
         } else {
-            this.bebidasMap.put(bebida, 1);
+            throw new IllegalStateException("No se puede agregar nada una vez confirmado el pedido");
         }
+
     }
 
     public int getCantidadPedido(PlatoPrincipal platoPrincipal) {
@@ -39,7 +48,7 @@ public class Pedido {
         return bebidasMap.get(bebida);
     }
 
-    public void confirmar() { //Debo implementar que no se pueda pedir si esta en estado '1'
+    public void confirmar() {
         estado = 1;
     }
 
@@ -51,43 +60,48 @@ public class Pedido {
         return sumatoria;
     }
 
-    private double descontar(double monto, double porcentaje) {
+    private double descontarPorPorcentaje(double monto, double porcentaje) {
         return monto * (100.0 - porcentaje) / 100;
     }
 
-    public double contarMontoTotal(TarjetaViedma miTarjeta) {
+    private double agregarPorPorcentaje(double monto, double porcentaje) {
+        return monto * (100.0 + porcentaje) / 100;
+    }
+
+    public double contarMontoTotal(TarjetaViedma miTarjeta, double porcentajePropina) {
         double sumatoriaTotal = 0;
         sumatoriaTotal += contarMonto(platosPrincipalesMap);
         sumatoriaTotal += contarMonto(bebidasMap);
+        sumatoriaTotal = agregarPorPorcentaje(sumatoriaTotal, porcentajePropina);
         return sumatoriaTotal;
     }
 
-    public double contarMontoTotal(TarjetaVisa miTarjeta) {
-        double sumatoriaTotal = 0;
-        sumatoriaTotal += contarMonto(bebidasMap);
-        sumatoriaTotal = descontar(sumatoriaTotal, 3.0);//Descuento del 3% en bebidas
-        sumatoriaTotal += contarMonto(platosPrincipalesMap);
-        return sumatoriaTotal;
-    }
-
-    public double contarMontoTotal(TarjetaMastercard miTarjeta) {
+    public double contarMontoTotal(TarjetaMastercard miTarjeta, double porcentajePropina) {
         double sumatoriaTotal = 0;
         sumatoriaTotal += contarMonto(platosPrincipalesMap);
-        sumatoriaTotal = descontar(sumatoriaTotal, 2.0);//Descuento del 2% en platos principales
+        sumatoriaTotal = descontarPorPorcentaje(sumatoriaTotal, 2.0);//Descuento del 2% en platos principales
         sumatoriaTotal += contarMonto(bebidasMap);
+        sumatoriaTotal = agregarPorPorcentaje(sumatoriaTotal, porcentajePropina);
         return sumatoriaTotal;
     }
 
-    public double contarMontoTotal(TarjetaComarcaplus miTarjeta) {
+    public double contarMontoTotal(TarjetaComarcaplus miTarjeta, double porcentajePropina) {
         double sumatoriaTotal = 0;
         sumatoriaTotal += contarMonto(platosPrincipalesMap);
         sumatoriaTotal += contarMonto(bebidasMap);
-        sumatoriaTotal = descontar(sumatoriaTotal, 2.0);//Descuento del 2% en el total
+        sumatoriaTotal = descontarPorPorcentaje(sumatoriaTotal, 2.0);//Descuento del 2% en el total
+        sumatoriaTotal = agregarPorPorcentaje(sumatoriaTotal, porcentajePropina);
         return sumatoriaTotal;
+
     }
 
-    public void documentarPago() {
-        estado = 2;
+    public double contarMontoTotal(TarjetaVisa miTarjeta, double porcentajePropina) {
+        double sumatoriaTotal = 0;
+        sumatoriaTotal += contarMonto(bebidasMap);
+        sumatoriaTotal = descontarPorPorcentaje(sumatoriaTotal, 3.0);//Descuento del 3% en bebidas
+        sumatoriaTotal += contarMonto(platosPrincipalesMap);
+        sumatoriaTotal = agregarPorPorcentaje(sumatoriaTotal, porcentajePropina);
+        return sumatoriaTotal;
     }
 
 }
